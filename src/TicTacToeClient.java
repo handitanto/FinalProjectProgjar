@@ -33,10 +33,12 @@ public class TicTacToeClient {
                 writer.println(input);
 
                 if (input.equals("quit")) {
-                    break;
+                    isGameFinished = true;
                 }
             }
 
+            reader.close();
+            writer.close();
             socket.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -60,27 +62,20 @@ public class TicTacToeClient {
         public void run() {
             try {
                 while (true) {
-                    String serverMessage = reader.readLine();
+                    String message = reader.readLine();
 
-                    if (serverMessage == null) {
-                        break;
+                    if (message.startsWith("MOVE,")) {
+                        String move = message.substring(5);
+                        System.out.println("Opponent's move: " + move);
+                    } else if (message.startsWith("CHAT:")) {
+                        System.out.println(message.substring(5));
+                    } else {
+                        System.out.println(message);
                     }
 
-                    if (serverMessage.startsWith("MOVE")) {
-                        String[] moveParts = serverMessage.split(",");
-                        int row = Integer.parseInt(moveParts[1]);
-                        int col = Integer.parseInt(moveParts[2]);
-
-                        // Your code to handle the opponent's move
-
-                    } else if (serverMessage.equals("INVALID_MOVE")) {
-                        System.out.println("Invalid move! Please try again.");
-                    } else if (serverMessage.equals("GAME_OVER")) {
-                        // Your code to handle game over scenario
+                    if (message.startsWith("Congratulations") || message.startsWith("Game over")) {
                         isGameFinished = true;
                         break;
-                    } else {
-                        System.out.println(serverMessage);
                     }
                 }
             } catch (IOException e) {
