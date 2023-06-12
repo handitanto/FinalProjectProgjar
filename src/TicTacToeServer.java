@@ -4,23 +4,21 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
 
 public class TicTacToeServer {
     private static final int PORT = 12345;
 
     private ServerSocket serverSocket;
-    private List<Socket> playerSockets;
-    private List<PrintWriter> playerWriters;
-    private List<BufferedReader> playerReaders;
+    private Socket[] playerSockets;
+    private PrintWriter[] playerWriters;
+    private BufferedReader[] playerReaders;
     private char[] board;
     private int currentPlayer;
 
     public TicTacToeServer() {
-        playerSockets = new ArrayList<>();
-        playerWriters = new ArrayList<>();
-        playerReaders = new ArrayList<>();
+        playerSockets = new Socket[2];
+        playerWriters = new PrintWriter[2];
+        playerReaders = new BufferedReader[2];
         board = new char[9];
         currentPlayer = 0;
     }
@@ -31,12 +29,11 @@ public class TicTacToeServer {
             System.out.println("Server started. Waiting for players to join...");
 
             for (int i = 0; i < 2; i++) {
-                Socket playerSocket = serverSocket.accept();
-                playerSockets.add(playerSocket);
-                playerWriters.add(new PrintWriter(playerSocket.getOutputStream(), true));
-                playerReaders.add(new BufferedReader(new InputStreamReader(playerSocket.getInputStream())));
+                playerSockets[i] = serverSocket.accept();
+                playerWriters[i] = new PrintWriter(playerSockets[i].getOutputStream(), true);
+                playerReaders[i] = new BufferedReader(new InputStreamReader(playerSockets[i].getInputStream()));
 
-                playerWriters.get(i).println("Welcome, Player " + (i + 1) + "! You are Player " + (i + 1) + ".");
+                playerWriters[i].println("Welcome, Player " + (i + 1) + "! You are Player " + (i + 1) + ".");
             }
 
             System.out.println("Both players have joined. Starting the game.");
@@ -49,43 +46,38 @@ public class TicTacToeServer {
                 int opponentIndex = (currentPlayer + 1) % 2;
 
                 // Send board state to the current player
-                playerWriters.get(currentPlayerIndex).println(getBoardState());
+                playerWriters[currentPlayerIndex].println(getBoardState());
 
                 // Prompt the current player to make a move
-                playerWriters.get(currentPlayerIndex).println("Your move (row,column):");
-                String move = playerReaders.get(currentPlayerIndex).readLine();
+                playerWriters[currentPlayerIndex].println("Your move (row,column):");
+                String move = playerReaders[currentPlayerIndex].readLine();
 
                 if (move.equals("quit")) {
-                    playerWriters.get(currentPlayerIndex).println("You have quit the game.");
-                    playerWriters.get(opponentIndex).println("Your opponent has quit the game.");
+                    playerWriters[currentPlayerIndex].println("You have quit the game.");
+                    playerWriters[opponentIndex].println("Your opponent has quit the game.");
                     break;
                 }
 
                 if (isValidMove(move)) {
                     updateBoard(move, currentPlayerIndex);
-                    playerWriters.get(currentPlayerIndex).println("MOVE," + move);
-                    playerWriters.get(opponentIndex).println("MOVE," + move);
+                    playerWriters[currentPlayerIndex].println("MOVE," + move);
+                    playerWriters[opponentIndex].println("MOVE," + move);
 
                     if (checkWin(currentPlayerIndex)) {
-                        playerWriters.get(currentPlayerIndex).println("Congratulations! You win!");
-                        playerWriters.get(opponentIndex).println("Game over. You lose.");
+                        playerWriters[currentPlayerIndex].println("Congratulations! You win!");
+                        playerWriters[opponentIndex].println("Game over. You lose.");
                         break;
                     }
 
                     if (isBoardFull()) {
-                        playerWriters.get(currentPlayerIndex).println("Game over. It's a draw.");
-                        playerWriters.get(opponentIndex).println("Game over. It's a draw.");
+                        playerWriters[currentPlayerIndex].println("Game over. It's a draw.");
+                        playerWriters[opponentIndex].println("Game over. It's a draw.");
                         break;
                     }
 
                     currentPlayer++;
-                } else if (move.startsWith("t")) {
-                    String chatMessage = move.substring(2);
-                    for (PrintWriter writer : playerWriters) {
-                        writer.println("CHAT: Player " + (currentPlayerIndex + 1) + ": " + chatMessage);
-                    }
                 } else {
-                    playerWriters.get(currentPlayerIndex).println("INVALID_MOVE");
+                    playerWriters[currentPlayerIndex].println("INVALID_MOVE");
                 }
             }
 
