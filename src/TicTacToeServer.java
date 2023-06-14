@@ -62,6 +62,7 @@ public class TicTacToeServer {
                 writer2.println("Welcome, Player 2! You are Player 2.");
 
                 initializeBoard();
+<<<<<<< Updated upstream
 
                 // Main game loop
                 while (true) {
@@ -95,32 +96,102 @@ public class TicTacToeServer {
                         sendPrompt(1);
                         move = reader2.readLine();
 
+=======
+                int turn = 1;
+
+                // Main game loop
+                while (true) {
+                    if(turn == 1){
+                        sendBoardState(0);
+                        sendPrompt(0);
+                        String move = reader1.readLine();
+    
+                        if (move.equals("quit")) {
+                            writer1.println("You have quit the game.");
+                            writer2.println("Your opponent has quit the game.");
+                            break;
+                        }
+    
+                        if (isValidMove(move)) {
+                            updateBoard(move, 0);
+                            sendMoveToPlayers(move);
+    
+                            if (checkWin(0)) {
+                                writer1.println("Congratulations! You win!");
+                                writer2.println("Game over. You lose.");
+                                break;
+                            }
+    
+                            if (isBoardFull()) {
+                                writer1.println("Game over. It's a draw.");
+                                writer2.println("Game over. It's a draw.");
+                                break;
+                            }
+    
+                            sendBoardState(1);
+                            sendPrompt(1);
+                            turn = 2;
+                        } else if (move.startsWith("t")) {
+                            String chatMessage = move.substring(2);
+                            writer1.println("CHAT: Player " + 1 + ": " + chatMessage);
+                            writer2.println("CHAT: Player " + 1 + ": " + chatMessage);
+                        } else {
+                            writer1.println("INVALID_MOVE");
+                        }
+                    } else {
+                        // Start player 2
+                        String move = reader2.readLine();
+    
+>>>>>>> Stashed changes
                         if (move.equals("quit")) {
                             writer2.println("You have quit the game.");
                             writer1.println("Your opponent has quit the game.");
                             break;
                         }
+<<<<<<< Updated upstream
 
                         if (isValidMove(move)) {
                             updateBoard(move, 1);
                             sendMoveToPlayers(move);
 
+=======
+    
+                        if (isValidMove(move)) {
+                            updateBoard(move, 1);
+                            sendMoveToPlayers(move);
+    
+>>>>>>> Stashed changes
                             if (checkWin(1)) {
                                 writer2.println("Congratulations! You win!");
                                 writer1.println("Game over. You lose.");
                                 break;
                             }
+<<<<<<< Updated upstream
 
+=======
+    
+>>>>>>> Stashed changes
                             if (isBoardFull()) {
                                 writer2.println("Game over. It's a draw.");
                                 writer1.println("Game over. It's a draw.");
                                 break;
                             }
+<<<<<<< Updated upstream
                         } else {
                             writer2.println("INVALID_MOVE");
                         }
                     } else {
                         writer1.println("INVALID_MOVE");
+=======
+                            turn = 1;
+                        } else if (move.startsWith("t")) {
+                            String chatMessage = move.substring(2);
+                            writer1.println("CHAT: Player " + 2 + ": " + chatMessage);
+                            writer2.println("CHAT: Player " + 2 + ": " + chatMessage);
+                        } else {
+                            writer2.println("INVALID_MOVE");
+                        }
+>>>>>>> Stashed changes
                     }
                 }
 
